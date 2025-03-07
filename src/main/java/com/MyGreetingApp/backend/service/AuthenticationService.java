@@ -2,8 +2,10 @@ package com.MyGreetingApp.backend.service;
 
 import com.MyGreetingApp.backend.dto.AuthUserDTO;
 import com.MyGreetingApp.backend.dto.LoginDTO;
+import com.MyGreetingApp.backend.dto.LoginResponseDto;
 import com.MyGreetingApp.backend.model.AuthUser;
 import com.MyGreetingApp.backend.repository.AuthUserRepository;
+import com.MyGreetingApp.backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ public class AuthenticationService {
 
     @Autowired
     private AuthUserRepository authUserRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
+
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -31,11 +36,23 @@ public class AuthenticationService {
         return "User registered successfully!";
     }
 
-    public String loginUser(LoginDTO loginDTO) {
-        AuthUser authUser = authUserRepository.findByEmail(loginDTO.getEmail());
-        if (authUser != null && passwordEncoder.matches(loginDTO.getPassword(), authUser.getPassword())) {
-            return "Login successful!";
+    public LoginResponseDto loginUser(LoginDTO loginDto) {
+        LoginResponseDto response = new LoginResponseDto();
+        String token = jwtUtil.generateToken(loginDto.getEmail());
+
+        if (token != null) {
+            response.setMessage("Login successful!");
+            response.setToken(token);
+        } else {
+            response.setMessage("Invalid email or password.");
+            response.setToken(null);
         }
-        return "Invalid email or password.";
+
+        return response;
     }
+
+
+
+
+
 }

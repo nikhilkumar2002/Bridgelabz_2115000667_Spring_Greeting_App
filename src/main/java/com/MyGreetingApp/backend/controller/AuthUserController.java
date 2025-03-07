@@ -2,6 +2,7 @@ package com.MyGreetingApp.backend.controller;
 
 import com.MyGreetingApp.backend.dto.AuthUserDTO;
 import com.MyGreetingApp.backend.dto.LoginDTO;
+import com.MyGreetingApp.backend.dto.LoginResponseDto;
 import com.MyGreetingApp.backend.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,11 +33,13 @@ public class AuthUserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginDTO loginDTO) {
-        String response = authenticationService.loginUser(loginDTO);
-        if (response.equals("Login successful!")) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDto) {
+        LoginResponseDto response = authenticationService.loginUser(loginDto);
+        if (response.getToken() != null) {
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("{\"message\": \"Invalid email or password!\"}");
     }
+
 }
