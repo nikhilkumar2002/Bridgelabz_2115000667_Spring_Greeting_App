@@ -41,6 +41,7 @@ public class AuthenticationService {
         String token = jwtUtil.generateToken(loginDto.getEmail());
 
         if (token != null) {
+            response.setEmail(loginDto.getEmail());
             response.setMessage("Login successful!");
             response.setToken(token);
         } else {
